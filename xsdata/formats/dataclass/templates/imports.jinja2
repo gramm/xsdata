@@ -1,11 +1,23 @@
 {%- for source, items in imports|groupby("source") -%}
 {%- if items|length == 1 -%}
+{%- if separate_classes == 0 -%}
 from {{ source }} import {{ "{} as {}".format(items[0].name|class_name, items[0].alias|class_name) if items[0].alias else items[0].name|class_name }}
 {% else -%}
+from {{ source }}.{{items[0].name|class_name}} import {{ "{} as {}".format(items[0].name|class_name, items[0].alias|class_name) if items[0].alias else items[0].name|class_name }}
+{% endif -%}
+{% else -%}
+
+{%- if separate_classes == 0 -%}
 from {{ source }} import (
 {%- for item in items %}
     {{ "{} as {}".format(item.name|class_name, item.alias|class_name) if item.alias else item.name|class_name }},
 {%- endfor %}
 )
+{% else -%}
+{%- for item in items %}
+from {{ source }}.{{item.name|class_name}} import {{ "{} as {}".format(item.name|class_name, item.alias|class_name) if item.alias else item.name|class_name }}
+{%- endfor %}
+{% endif -%}
+
 {% endif -%}
 {%- endfor %}

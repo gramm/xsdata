@@ -18,6 +18,7 @@ from xsdata.utils.package import module_path
 from xsdata.utils.text import alnum
 from xsdata.utils.namespaces import local_name
 
+
 class DataclassGenerator(AbstractGenerator):
     """Python dataclasses code generator."""
 
@@ -62,7 +63,8 @@ class DataclassGenerator(AbstractGenerator):
         else:
             for classe in classes:
                 yield GeneratorResult(
-                    path=module_path(classe.target_module).joinpath("{0}".format(self.filters.class_name(classe.name))).with_suffix(".py"),
+                    path=module_path(classe.target_module).joinpath(
+                        "{0}".format(self.filters.class_name(classe.name))).with_suffix(".py"),
                     title=classe.target_module,
                     source=self.render_class(resolver, classe),
                 )
@@ -91,17 +93,19 @@ class DataclassGenerator(AbstractGenerator):
 
         return self.env.get_template("imports.jinja2").render(imports=imports)
 
-    def render_class(self, resolver: DependenciesResolver, classe:Class):
+    def render_class(self, resolver: DependenciesResolver, classe: Class):
         resolver.process([classe])
         imports = resolver.sorted_imports()
         output = self.render_classes(resolver.sorted_classes())
         namespace = classe.target_namespace
         return self.env.get_template("module.jinja2").render(
-            output=output, imports=imports, namespace=namespace, future_annotations = self.config.output.import_future_annotations
+            output=output, imports=imports, namespace=namespace,
+            future_annotations=self.config.output.import_future_annotations,
+            separate_classes = self.config.output.separate_classes
         )
 
     def render_module(
-        self, resolver: DependenciesResolver, classes: List[Class]
+            self, resolver: DependenciesResolver, classes: List[Class]
     ) -> str:
         """Render the source code for the target module of the given class
         list."""
@@ -111,7 +115,9 @@ class DataclassGenerator(AbstractGenerator):
         namespace = classes[0].target_namespace
 
         return self.env.get_template("module.jinja2").render(
-            output=output, imports=imports, namespace=namespace
+            output=output, imports=imports, namespace=namespace,
+            future_annotations=self.config.output.import_future_annotations,
+            separate_classes = self.config.output.separate_classes
         )
 
     def render_classes(self, classes: List[Class]) -> str:
@@ -131,10 +137,10 @@ class DataclassGenerator(AbstractGenerator):
 
             return (
                 load(template)
-                .render(
+                    .render(
                     obj=obj, docstring_style=config.output.docstring_style.name.lower()
                 )
-                .strip()
+                    .strip()
             )
 
         return "\n\n\n".join(map(render_class, classes)) + "\n"
