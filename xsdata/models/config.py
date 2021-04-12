@@ -132,10 +132,12 @@ class GeneratorOutput:
     :param compound_fields: Use compound fields for repeating choices.
         Enable if elements ordering matters for your case.
     :param import_future_annotations: add import "from __future__ import annotations" to allow self-referencing typing if python version is <3.10
+    :param separate_classes: generate a separate python file for each top level class
     """
 
     max_line_length: int = attribute(default=79)
     import_future_annotations: bool = attribute(default=False)
+    separate_classes: bool = attribute(default=False)
     package: str = element(default="generated")
     format: str = element(default="dataclasses")
     structure: OutputStructure = element(default=OutputStructure.FILENAMES)
